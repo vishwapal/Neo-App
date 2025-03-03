@@ -1,0 +1,48 @@
+/* Full Page Centered Layout */
+.homepage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  background: linear-gradient(to right, #ff9900, #ff6600);
+  color: white;
+}
+
+/* Hero Section */
+.hero {
+  max-width: 600px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Headline */
+.hero h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+/* Subtitle */
+.hero p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+/* Login Button */
+.loginButton {
+  padding: 12px 20px;
+  font-size: 18px;
+  color: #ff6600;
+  background: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s ease-in-out;
+}
+
+.loginButton:hover {
+  background: #ffe0b3;
+}

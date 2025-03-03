@@ -1,0 +1,100 @@
+/* Homepage.module.css */
+.container {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: linear-gradient(135deg, #1e3a8a, #9333ea);
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.description {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.button {
+  background-color: #f59e0b;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.button:hover {
+  background-color: #d97706;
+  transform: translateY(-3px);
+}
+
+/* Homepage.module.css */
+
+.card {
+  background: rgba(255, 255, 255, 0.15); /* Glass effect */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.2);
+  margin-top: 2rem;
+  max-width: 400px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Glow effect on hover */
+.card:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0px 30px 60px rgba(255, 255, 255, 0.3);
+}
+
+/* Floating animation */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.card h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.card p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.card a {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #f59e0b;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.card a:hover {
+  color: #d97706;
+}
