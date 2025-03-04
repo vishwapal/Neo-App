@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import fs from "fs";
 import jwt from "jsonwebtoken";
+import products from "./products.js";
 
 dotenv.config();
 
@@ -11,8 +12,18 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 const USERS_FILE = "users.json";
 
+if (!process.env.JWT_SECRET) {
+  console.error("Missing JWT_SECRET in environment variables");
+  process.exit(1);
+}
 // Function to read users from JSON file
 const readUsers = () => {
   try {
@@ -45,6 +56,22 @@ app.post("/register", async (req, res) => {
   res.json({ message: "User registered successfully" });
 });
 
+app.get("/app/products", (req, res) => {
+  res.json(products);
+});
+
+// Add this route below the existing `/app/products` route
+app.get("/app/products/:id", (req, res) => {
+  const { id } = req.params;
+  const product = products.find((p) => p.id === parseInt(id));
+
+  if (!product) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+
+  res.json(product);
+});
+
 // **Login User (JWT Token Generation)**
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
@@ -61,9 +88,10 @@ app.post("/login", async (req, res) => {
     return res.status(401).json({ message: "Invalid credentials" });
   }
   const token = jwt.sign({ username }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: 3600,
   });
-  res.json({ token });
+
+  res.json({ token, username });
 });
 
 // **Protected Route**
