@@ -4,26 +4,46 @@ import dotenv from "dotenv";
 import express from "express";
 import fs from "fs";
 import jwt from "jsonwebtoken";
+import path from "path";
+import { fileURLToPath } from "url"; // Import for handling __dirname in ES Modules
 import products from "./products.js";
 
+const app = express();
 dotenv.config();
 
-const app = express();
-app.use(express.json());
-app.use(cors());
+// Correctly resolve __dirname in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+// Set the correct path for `dist` (located at the root level of `Neo-App`)
+app.use(express.static(path.join(__dirname, "../dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist", "index.html"));
+});
+
+const PORT = process.env.PORT || 5000;
+
+// Free the port if it's already in use
+app.listen(PORT, () => {
+  console.log(`Backend running at http://localhost:${PORT}`);
+});
+
+app.use(express.json());
 app.use(
   cors({
-    origin: "*",
+    origin: ["http://localhost:5000", "http://YOUR_SERVER_IP:5000"],
+    credentials: true,
   })
 );
 
-const USERS_FILE = "users.json";
+const USERS_FILE = path.join(__dirname, "users.json");
 
 if (!process.env.JWT_SECRET) {
   console.error("Missing JWT_SECRET in environment variables");
   process.exit(1);
 }
+
 // Function to read users from JSON file
 const readUsers = () => {
   try {
@@ -56,11 +76,12 @@ app.post("/register", async (req, res) => {
   res.json({ message: "User registered successfully" });
 });
 
+// **Get Products API**
 app.get("/app/products", (req, res) => {
   res.json(products);
 });
 
-// Add this route below the existing `/app/products` route
+// **Get Single Product by ID**
 app.get("/app/products/:id", (req, res) => {
   const { id } = req.params;
   const product = products.find((p) => p.id === parseInt(id));
@@ -87,6 +108,7 @@ app.post("/login", async (req, res) => {
   if (!isPasswordValid) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
+
   const token = jwt.sign({ username }, process.env.JWT_SECRET, {
     expiresIn: 3600,
   });
@@ -104,5 +126,3 @@ app.get("/protected", (req, res) => {
     res.json({ message: "Protected data accessed", user: decoded });
   });
 });
-
-app.listen(5000, () => console.log("Server running on port 5000"));
