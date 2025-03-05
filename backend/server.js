@@ -24,14 +24,29 @@ app.get("*", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 // Free the port if it's already in use
-app.listen(PORT, () => {
-  console.log(`Backend running at http://localhost:${PORT}`);
+app.listen(PORT, (err) => {
+  if (err) {
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        `❌ Port ${PORT} is already in use. Try killing the process using it.`
+      );
+      process.exit(1);
+    }
+    console.error("❌ Server error:", err);
+  } else {
+    console.log(`✅ Backend running at http://localhost:${PORT}`);
+  }
 });
 
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5000", "http://YOUR_SERVER_IP:5000"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://YOUR_SERVER_IP:5000",
+      "http://yourdomain.com",
+    ],
     credentials: true,
   })
 );
