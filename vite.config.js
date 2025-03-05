@@ -4,6 +4,10 @@ import { defineConfig } from "vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    outDir: "../backend/dist", // Ensure this is pointing correctly
+    emptyOutDir: true, // Clears old files before building
+  },
   base: "./",
   server: {
     port: 5173, // Ensure this matches the correct port
