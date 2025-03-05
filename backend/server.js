@@ -9,7 +9,9 @@ import { fileURLToPath } from "url";
 import products from "./products.js";
 
 dotenv.config();
-const app = express();
+
+// Start Server
+const PORT = process.env.PORT || 5000;
 
 // Ensure correct __dirname definition for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -17,26 +19,6 @@ const __dirname = path.dirname(__filename);
 
 // Ensure the dist path is correct
 const distPath = path.join(__dirname, "dist");
-if (!fs.existsSync(distPath)) {
-  console.warn(
-    "⚠️ Warning: React build folder not found. Run `npm run build`."
-  );
-}
-
-// Serve static files from React build
-app.use(express.static(distPath));
-app.get("*", (req, res) => {
-  const indexPath = path.join(distPath, "index.html");
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).send("React build not found. Run `npm run build`.");
-  }
-});
-
-// Middleware
-app.use(express.json());
-app.use(cors({ origin: "*", credentials: true }));
 
 // Ensure `users.json` exists
 const USERS_FILE = path.join(__dirname, "users.json");
@@ -47,11 +29,30 @@ const readUsers = () => JSON.parse(fs.readFileSync(USERS_FILE, "utf8"));
 const writeUsers = (users) =>
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 
-// Ensure JWT_SECRET is set
-if (!process.env.JWT_SECRET) {
-  console.error("❌ Missing JWT_SECRET in environment variables.");
-  process.exit(1);
-}
+// Middleware
+const app = express();
+
+// Middleware
+app.use(express.json());
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader?.split(" ")[1];
+  if (!token) return res.status(403).send("Token required");
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(401).send("Invalid token");
+    req.user = user;
+    next();
+  });
+};
 
 // User Registration
 app.post("/register", async (req, res) => {
@@ -70,10 +71,10 @@ app.post("/register", async (req, res) => {
 });
 
 // Get Products API
-app.get("/app/products", (req, res) => res.json(products));
+app.get("/app/products", authenticateToken, (req, res) => res.json(products));
 
 // Get Single Product by ID
-app.get("/app/products/:id", (req, res) => {
+app.get("/app/products/:id", authenticateToken, (req, res) => {
   const { id } = req.params;
   const product = products.find((p) => p.id === parseInt(id));
   if (!product) return res.status(404).json({ message: "Product not found" });
@@ -110,8 +111,25 @@ app.get("/protected", (req, res) => {
   });
 });
 
-// Start Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(`✅ Backend running at http://localhost:${PORT}`)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
+});
+
+if (!fs.existsSync(distPath)) {
+  console.warn(
+    "⚠️ Warning: React build folder not found. Run `npm run build`."
+  );
+}
+
+// Ensure JWT_SECRET is set
+if (!process.env.JWT_SECRET) {
+  console.error("❌ Missing JWT_SECRET in environment variables.");
+  process.exit(1);
+}
+
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`✅ Backend running at http://0.0.0.0:${PORT}`)
 );
+
+// Serve static files from React build
+app.use(express.static(distPath));

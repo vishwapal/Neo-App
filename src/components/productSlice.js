@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://54.86.28.232:5000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const fetchProducts = createAsyncThunk("products/fetch", async () => {
   const res = await fetch(`${API_BASE_URL}/app/products`);
