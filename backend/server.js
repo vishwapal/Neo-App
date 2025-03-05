@@ -8,19 +8,27 @@ import path from "path";
 import { fileURLToPath } from "url";
 import products from "./products.js";
 
-const app = express();
 dotenv.config();
+const app = express();
 
-// Correct __dirname handling
+// Correctly resolve __dirname in ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve React static files
+// Set the correct path for `dist` (React build output)
 const distPath = path.join(__dirname, "../dist");
-app.use(express.static(distPath));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(distPath, "index.html"));
-});
+
+// Serve static files from React frontend
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
+} else {
+  console.error(
+    "⚠️ Warning: React build folder not found. Run `npm run build` in frontend."
+  );
+}
 
 // Middleware
 app.use(express.json());
@@ -29,14 +37,14 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost:5173",
-      "http://YOUR_SERVER_IP:5000",
+      "http://54.86.28.232/:5000", // Replace with actual server IP
       "http://yourdomain.com",
     ],
     credentials: true,
   })
-});
+);
 
-// Ensure users.json exists
+// Ensure `users.json` exists
 const USERS_FILE = path.join(__dirname, "users.json");
 if (!fs.existsSync(USERS_FILE)) {
   fs.writeFileSync(USERS_FILE, "[]");
@@ -55,9 +63,9 @@ const writeUsers = (users) => {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 };
 
-// Check for missing JWT_SECRET
+// Ensure `JWT_SECRET` is set
 if (!process.env.JWT_SECRET) {
-  console.error("❌ Missing JWT_SECRET in environment variables");
+  console.error("❌ Error: Missing JWT_SECRET in environment variables.");
   process.exit(1);
 }
 
@@ -80,7 +88,7 @@ app.post("/register", async (req, res) => {
 // Get Products API
 app.get("/app/products", (req, res) => res.json(products));
 
-// Get Single Product
+// Get Single Product by ID
 app.get("/app/products/:id", (req, res) => {
   const { id } = req.params;
   const product = products.find((p) => p.id === parseInt(id));
@@ -109,8 +117,11 @@ app.post("/login", async (req, res) => {
 
 // Protected Route
 app.get("/protected", (req, res) => {
-  const token = req.headers["authorization"];
-  if (!token) return res.status(403).json({ message: "Token required" });
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) return res.status(403).json({ message: "Token required" });
+
+  // Extract Bearer token
+  const token = authHeader.split(" ")[1];
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return res.status(401).json({ message: "Invalid token" });
@@ -120,13 +131,15 @@ app.get("/protected", (req, res) => {
 
 // Start Server with Error Handling
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✅ Backend running at http://localhost:${PORT}`);
-}).on("error", (err) => {
-  if (err.code === "EADDRINUSE") {
-    console.error(`❌ Port ${PORT} is already in use.`);
-    process.exit(1);
-  } else {
-    console.error("❌ Server error:", err);
-  }
-});
+app
+  .listen(PORT, () => {
+    console.log(`✅ Backend running at http://localhost:${PORT}`);
+  })
+  .on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(`❌ Error: Port ${PORT} is already in use.`);
+      process.exit(1);
+    } else {
+      console.error("❌ Server error:", err);
+    }
+  });
