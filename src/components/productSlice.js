@@ -1,12 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"; // ✅ Ensure a fallback
+  import.meta.env.VITE_API_BASE_URL || "http://54.86.28.232:5000";
 
-// Async Thunk to Fetch Products
 export const fetchProducts = createAsyncThunk("products/fetch", async () => {
-  const res = await fetch(`/app/products`);
+  const res = await fetch(`${API_BASE_URL}/app/products`);
 
+  console.log("Full URL used:", `${API_BASE_URL}/app/products`);
   console.log("res", res);
+
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+
   const data = await res.json();
   return data;
 });

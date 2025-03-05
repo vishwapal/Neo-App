@@ -4,7 +4,7 @@ import ErrorPage from "./ErrorPage";
 import styles from "./Product.module.css";
 import SpinnerFullPage from "./SpinnerFullPage";
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"; // ✅ Ensure a fallback
+  import.meta.env.VITE_API_BASE_URL || "http://54.86.28.232:5000"; // ✅ Ensure a fallback
 
 function Product() {
   const [product, setProduct] = useState(null);
@@ -24,7 +24,7 @@ function Product() {
         setIsLoading(true);
         setError(null);
 
-        const res = await fetch(`/app/products/${productId}`);
+        const res = await fetch(`${API_BASE_URL}/app/products/${productId}`);
         if (!res.ok) throw new Error("Failed to fetch product");
 
         const data = await res.json();
