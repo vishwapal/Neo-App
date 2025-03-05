@@ -11,24 +11,18 @@ import products from "./products.js";
 dotenv.config();
 const app = express();
 
-// Correctly resolve __dirname in ES module
+// Fix __dirname reference for ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Set the correct path for `dist` (React build output)
-const distPath = path.join(__dirname, "../dist");
+// Ensure distPath is correctly set
+const distPath = path.join(__dirname, "dist");
 
-// Serve static files from React frontend
-if (fs.existsSync(distPath)) {
-  app.use(express.static(distPath));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
-} else {
-  console.error(
-    "⚠️ Warning: React build folder not found. Run `npm run build` in frontend."
-  );
-}
+// Serve static files from React build
+app.use(express.static(distPath));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
+});
 
 // Middleware
 app.use(express.json());
@@ -37,7 +31,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost:5173",
-      "http://54.86.28.232/:5000", // Replace with actual server IP
+      "http://YOUR_SERVER_IP:5000", // Replace with actual server IP
       "http://yourdomain.com",
     ],
     credentials: true,
