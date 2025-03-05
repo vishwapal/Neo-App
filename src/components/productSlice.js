@@ -4,7 +4,7 @@ const API_BASE_URL =
 
 // Async Thunk to Fetch Products
 export const fetchProducts = createAsyncThunk("products/fetch", async () => {
-  const res = await fetch(`${API_BASE_URL}/app/products`);
+  const res = await fetch(`/app/products`);
 
   console.log("res", res);
   const data = await res.json();

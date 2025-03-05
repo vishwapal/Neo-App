@@ -24,7 +24,7 @@ function Product() {
         setIsLoading(true);
         setError(null);
 
-        const res = await fetch(`${API_BASE_URL}/app/products/${productId}`);
+        const res = await fetch(`/app/products/${productId}`);
         if (!res.ok) throw new Error("Failed to fetch product");
 
         const data = await res.json();
