@@ -3,29 +3,25 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main # Change to your main branch
+      - main # Change this if your branch is different
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
       - name: Deploy to EC2
-        run: |
-          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/ubuntu/Neo-App
-            git pull origin main  # Pull the latest changes
-            npm install --legacy-peer-deps  # Install dependencies
-            npm run build  # Build React app
-            pm2 restart backend  # Restart backend
-          EOF
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: 54.86.28.232
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/Neo-App
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart all
