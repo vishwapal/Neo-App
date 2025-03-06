@@ -10,6 +10,8 @@ import products from "./products.js";
 
 dotenv.config();
 
+const app = express();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -29,7 +31,6 @@ const writeUsers = (users) =>
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 
 // Middleware
-const app = express();
 app.use(express.json());
 app.use(
   cors({
