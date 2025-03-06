@@ -8,29 +8,28 @@ import path from "path";
 import { fileURLToPath } from "url";
 import products from "./products.js";
 
-dotenv.config();
+dotenv.config({ path: "./.env" });
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error("❌ Missing JWT_SECRET in environment variables.");
+  process.exit(1);
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Ensure the dist path is correct
 const distPath = path.join(__dirname, "dist");
-
-// Serve static files from the frontend build folder
-app.use(express.static(path.join(__dirname, "dist")));
-
-// Ensure `users.json` exists
 const USERS_FILE = path.join(__dirname, "users.json");
+
 if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
 
-// Read & Write Users
 const readUsers = () => JSON.parse(fs.readFileSync(USERS_FILE, "utf8"));
 const writeUsers = (users) =>
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 
-// Middleware
 app.use(express.json());
 app.use(
   cors({
@@ -40,25 +39,18 @@ app.use(
   })
 );
 
-// Ensure JWT_SECRET is set
-if (!process.env.JWT_SECRET) {
-  console.error("❌ Missing JWT_SECRET in environment variables.");
-  process.exit(1);
-}
-
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader?.split(" ")[1];
   if (!token) return res.status(403).json({ message: "Token required" });
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(401).json({ message: "Invalid token" });
     req.user = user;
     next();
   });
 };
 
-// User Registration
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
   let users = readUsers();
@@ -69,15 +61,13 @@ app.post("/register", async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   users.push({ username, password: hashedPassword });
-
   writeUsers(users);
+
   res.json({ message: "User registered successfully" });
 });
 
-// Get Products API
 app.get("/app/products", authenticateToken, (req, res) => res.json(products));
 
-// Get Single Product by ID
 app.get("/app/products/:id", authenticateToken, (req, res) => {
   const { id } = req.params;
   const product = products.find((p) => p.id === parseInt(id));
@@ -85,7 +75,6 @@ app.get("/app/products/:id", authenticateToken, (req, res) => {
   res.json(product);
 });
 
-// User Login
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
@@ -97,23 +86,18 @@ app.post("/login", async (req, res) => {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  const token = jwt.sign({ username }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
+  const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: "1h" });
   res.json({ token, username });
 });
 
-// Protected Route
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Protected data accessed", user: req.user });
 });
 
-// Serve static files from React build (Ensure middleware order)
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
-  // Handle React frontend routing
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "dist", "index.html"));
+    res.sendFile(path.join(distPath, "index.html"));
   });
 } else {
   console.warn(
@@ -124,9 +108,3 @@ if (fs.existsSync(distPath)) {
 app.listen(PORT, "0.0.0.0", () =>
   console.log(`✅ Backend running at http://0.0.0.0:${PORT}`)
 );
-
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✅ Backend running at http://0.0.0.0:${PORT}`);
-});
