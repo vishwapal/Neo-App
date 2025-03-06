@@ -16,8 +16,6 @@ function Product() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  console.log("Product ID from URL:", id);
-
   useEffect(() => {
     if (!id) return;
 
@@ -72,7 +70,7 @@ function Product() {
 
   if (isLoading) return <SpinnerFullPage />;
   if (error) return <ErrorPage error={error} />;
-  if (!product) return <p className={styles.message}>No product found.</p>;
+  if (!product) return <p className={styles.message}>No product found..</p>;
 
   return (
     <>
@@ -81,7 +79,6 @@ function Product() {
       </button>
 
       <div className={styles.container}>
-        {/* Product Image */}
         <div className={styles.imageContainer}>
           <img
             src={product.image}
@@ -89,8 +86,6 @@ function Product() {
             className={styles.image}
           />
         </div>
-
-        {/* Product Details */}
         <div className={styles.details}>
           <h1 className={styles.title}>{product.title}</h1>
           <p className={styles.category}>{product.category}</p>
