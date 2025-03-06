@@ -1,16 +1,16 @@
 import react from "@vitejs/plugin-react";
+import path from "path";
 import { defineConfig } from "vite";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: "../backend/dist", // Ensure this is pointing correctly
-    emptyOutDir: true, // Clears old files before building
+    outDir: path.resolve(__dirname, "backend/dist"), // Ensures build goes to backend/dist
+    emptyOutDir: true,
   },
   base: "./",
   server: {
-    port: 5173, // Ensure this matches the correct port
+    port: 5173,
     proxy: {
       "/app": "http://localhost:5000",
     },
