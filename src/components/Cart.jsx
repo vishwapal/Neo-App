@@ -63,7 +63,6 @@ function Cart() {
           </div>
         ))}
       </div>
-
       <div className={styles.orderSummary}>
         <h3>
           Subtotal ({updatedCart.length} items):{" "}
