@@ -31,8 +31,6 @@ const writeUsers = (users) =>
 
 // Middleware
 const app = express();
-
-// Middleware
 app.use(express.json());
 app.use(
   cors({
@@ -42,13 +40,19 @@ app.use(
   })
 );
 
+// Ensure JWT_SECRET is set
+if (!process.env.JWT_SECRET) {
+  console.error("❌ Missing JWT_SECRET in environment variables.");
+  process.exit(1);
+}
+
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader?.split(" ")[1];
-  if (!token) return res.status(403).send("Token required");
+  if (!token) return res.status(403).json({ message: "Token required" });
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(401).send("Invalid token");
+    if (err) return res.status(401).json({ message: "Invalid token" });
     req.user = user;
     next();
   });
@@ -100,36 +104,22 @@ app.post("/login", async (req, res) => {
 });
 
 // Protected Route
-app.get("/protected", (req, res) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) return res.status(403).json({ message: "Token required" });
+app.get("/protected", authenticateToken, (req, res) => {
+  res.json({ message: "Protected data accessed", user: req.user });
+});
 
-  const token = authHeader.split(" ")[1];
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(401).json({ message: "Invalid token" });
-    res.json({ message: "Protected data accessed", user: decoded });
+// Serve static files from React build (Ensure middleware order)
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
   });
-});
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(distPath, "index.html"));
-});
-
-if (!fs.existsSync(distPath)) {
+} else {
   console.warn(
     "⚠️ Warning: React build folder not found. Run `npm run build`."
   );
 }
 
-// Ensure JWT_SECRET is set
-if (!process.env.JWT_SECRET) {
-  console.error("❌ Missing JWT_SECRET in environment variables.");
-  process.exit(1);
-}
-
 app.listen(PORT, "0.0.0.0", () =>
   console.log(`✅ Backend running at http://0.0.0.0:${PORT}`)
 );
-
-// Serve static files from React build
-app.use(express.static(distPath));
