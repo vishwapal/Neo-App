@@ -2,7 +2,7 @@ import { useRouteError } from "react-router-dom";
 
 function ErrorPage() {
   const error = useRouteError();
-  console.error("Error caught in ErrorPage:", error);
+  console.error("Error caught in ErrorPage = ", error);
 
   return (
     <div style={{ textAlign: "center", padding: "20px" }}>
