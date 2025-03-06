@@ -71,7 +71,6 @@ function Login() {
                 required
               />
             </div>
-
             <button type="submit" className={styles.loginButton}>
               Login
             </button>

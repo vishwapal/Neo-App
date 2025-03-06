@@ -9,7 +9,6 @@ function Cart() {
   const cart = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
   const updatedCart = mergeSameCartItems(cart);
-  // Calculate Total Price
   const totalAmount = cart
     .reduce((sum, item) => sum + item.price * item.quantity, 0)
     .toFixed(2);
@@ -55,7 +54,6 @@ function Cart() {
                 </button>
               </div>
             </div>
-            {/* Remove Button with Trash Icon */}
             <button
               className={styles.removeButton}
               onClick={() => dispatch(removeItem(item.id))}
