@@ -11,9 +11,6 @@ export const fetchProducts = createAsyncThunk("products/fetch", async () => {
     },
   });
 
-  console.log("Full URL used:", `${API_BASE_URL}/app/products`);
-  console.log("res", res);
-
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`);
   }
