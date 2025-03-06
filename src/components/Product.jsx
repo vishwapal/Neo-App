@@ -4,19 +4,19 @@ import ErrorPage from "./ErrorPage";
 import styles from "./Product.module.css";
 import SpinnerFullPage from "./SpinnerFullPage";
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://54.86.28.232:5000"; // ✅ Ensure a fallback
+  import.meta.env.VITE_API_BASE_URL || "http://54.86.28.232:5000";
 
 function Product() {
   const [product, setProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null); // Handle errors properly
+  const [error, setError] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
 
   console.log("Product ID from URL:", id);
 
   useEffect(() => {
-    if (!id) return; // Prevent fetching if ID is undefined
+    if (!id) return;
 
     async function getProduct(productId) {
       console.log("Fetching product with ID:", productId);
@@ -24,7 +24,15 @@ function Product() {
         setIsLoading(true);
         setError(null);
 
-        const res = await fetch(`${API_BASE_URL}/app/products/${productId}`);
+        const token = localStorage.getItem("token"); // ✅ Retrieve token
+        if (!token) throw new Error("Unauthorized: No token found");
+
+        const res = await fetch(`${API_BASE_URL}/app/products/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ Include token in headers
+            "Content-Type": "application/json",
+          },
+        });
         if (!res.ok) throw new Error("Failed to fetch product");
 
         const data = await res.json();

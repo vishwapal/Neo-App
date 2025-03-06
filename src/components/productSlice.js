@@ -1,8 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const token = localStorage.getItem("token");
+if (!token) throw new Error("Unauthorized: No token found");
 
 export const fetchProducts = createAsyncThunk("products/fetch", async () => {
-  const res = await fetch(`${API_BASE_URL}/app/products`);
+  const res = await fetch(`${API_BASE_URL}/app/products`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
 
   console.log("Full URL used:", `${API_BASE_URL}/app/products`);
   console.log("res", res);
