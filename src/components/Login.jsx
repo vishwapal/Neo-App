@@ -12,9 +12,6 @@ function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isAuthenticated } = useSelector((state) => state.account);
-
-  console.log("isAuthenticated", isAuthenticated);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +26,6 @@ function Login() {
       const result = await dispatch(
         loginUser({ username: email, password })
       ).unwrap();
-      console.log("Login successful:", result);
       navigate("/home");
     } catch (err) {
       setError("Invalid email or password.");
