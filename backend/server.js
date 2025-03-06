@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-  console.error("❌ Missing JWT_SECRET in environment variables.");
+  console.error("Missing JWT_SECRET in environment variables.");
   process.exit(1);
 }
 
@@ -101,11 +101,9 @@ if (fs.existsSync(distPath)) {
     res.sendFile(path.join(distPath, "index.html"));
   });
 } else {
-  console.warn(
-    "⚠️ Warning: React build folder not found. Run `npm run build`."
-  );
+  console.warn(" Warning: React build folder not found. Run `npm run build`.");
 }
 
 app.listen(PORT, "0.0.0.0", () =>
-  console.log(`✅ Backend running at http://0.0.0.0:${PORT}`)
+  console.log(` Backend running at http://0.0.0.0:${PORT}`)
 );

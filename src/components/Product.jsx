@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import ErrorPage from "./ErrorPage";
 import styles from "./Product.module.css";
 import SpinnerFullPage from "./SpinnerFullPage";
+import { addItem } from "./cartSlice";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://54.86.28.232:5000";
 
@@ -12,6 +14,7 @@ function Product() {
   const [error, setError] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   console.log("Product ID from URL:", id);
 
@@ -24,12 +27,12 @@ function Product() {
         setIsLoading(true);
         setError(null);
 
-        const token = localStorage.getItem("token"); // ✅ Retrieve token
+        const token = localStorage.getItem("token");
         if (!token) throw new Error("Unauthorized: No token found");
 
         const res = await fetch(`${API_BASE_URL}/app/products/${productId}`, {
           headers: {
-            Authorization: `Bearer ${token}`, // ✅ Include token in headers
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
@@ -48,6 +51,24 @@ function Product() {
 
     getProduct(id);
   }, [id]);
+
+  function handleAddToCart(e) {
+    e.preventDefault();
+    const productItem = {
+      id: product.id,
+      title: product.title,
+      image: product.image,
+      category: product.category,
+      price: product.price,
+      quantity: 1,
+      totalPrice: product.price * 1,
+      rating: {
+        rate: product.rating.rate,
+        count: product.rating.count,
+      },
+    };
+    dispatch(addItem(productItem));
+  }
 
   if (isLoading) return <SpinnerFullPage />;
   if (error) return <ErrorPage error={error} />;
@@ -82,7 +103,9 @@ function Product() {
 
           {/* Buttons */}
           <div className={styles.buttons}>
-            <button className={styles.addToCart}>Add to Cart</button>
+            <button className={styles.addToCart} onClick={handleAddToCart}>
+              Add to Cart
+            </button>
             <button className={styles.buyNow}>Buy Now</button>
           </div>
         </div>
