@@ -10,15 +10,15 @@ import products from "./products.js";
 
 dotenv.config();
 
-// Start Server
-const PORT = process.env.PORT || 5000;
-
-// Ensure correct __dirname definition for ES modules
+// Fix for __dirname in ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Ensure the dist path is correct
 const distPath = path.join(__dirname, "dist");
+
+// Serve static files from the frontend build folder
+app.use(express.static(path.join(__dirname, "dist")));
 
 // Ensure `users.json` exists
 const USERS_FILE = path.join(__dirname, "users.json");
@@ -111,8 +111,9 @@ app.get("/protected", authenticateToken, (req, res) => {
 // Serve static files from React build (Ensure middleware order)
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
+  // Handle React frontend routing
   app.get("*", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
+    res.sendFile(path.join(__dirname, "dist", "index.html"));
   });
 } else {
   console.warn(
@@ -123,3 +124,9 @@ if (fs.existsSync(distPath)) {
 app.listen(PORT, "0.0.0.0", () =>
   console.log(`✅ Backend running at http://0.0.0.0:${PORT}`)
 );
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Backend running at http://0.0.0.0:${PORT}`);
+});
