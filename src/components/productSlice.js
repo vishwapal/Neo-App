@@ -1,9 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const token = localStorage.getItem("token");
-if (!token) throw new Error("Unauthorized: No token found");
+const API_BASE_URL =
+  import.meta.env.MODE === "production"
+    ? import.meta.env.VITE_API_BASE_URL_PROD?.trim()
+    : import.meta.env.VITE_API_BASE_URL_DEV?.trim() || "http://localhost:5000";
 
 export const fetchProducts = createAsyncThunk("products/fetch", async () => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Unauthorized: No token found");
+
   const res = await fetch(`${API_BASE_URL}/app/products`, {
     headers: {
       Authorization: `Bearer ${token}`,

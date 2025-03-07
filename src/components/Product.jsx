@@ -6,7 +6,9 @@ import styles from "./Product.module.css";
 import SpinnerFullPage from "./SpinnerFullPage";
 import { addItem } from "./cartSlice";
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://54.86.28.232:5000";
+  import.meta.env.MODE === "production"
+    ? import.meta.env.VITE_API_BASE_URL_PROD?.trim()
+    : import.meta.env.VITE_API_BASE_URL_DEV?.trim() || "http://localhost:5000";
 
 function Product() {
   const [product, setProduct] = useState(null);
