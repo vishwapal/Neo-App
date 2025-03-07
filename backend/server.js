@@ -52,6 +52,10 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+app.get("/", (req, res) => {
+  res.send("Welcome to the backend API!");
+});
+
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
   let users = readUsers();

@@ -37,7 +37,7 @@ function Cart() {
             />
             <div className={styles.itemDetails}>
               <h3>{item.title}</h3>
-              <p className={styles.price}>${item.price.toFixed(2)}</p>
+              <p className={styles.price}>${Number(item.price).toFixed(2)}</p>
               <div className={styles.quantityContainer}>
                 <button
                   onClick={() => {

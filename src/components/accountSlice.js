@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 const API_BASE_URL =
-  import.meta.env.MODE === "production"
-    ? import.meta.env.VITE_API_BASE_URL_PROD?.trim()
-    : import.meta.env.VITE_API_BASE_URL_DEV?.trim() || "http://localhost:5000";
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+console.log("API_BASE_URL:", API_BASE_URL); // Debugging line
 
 const initialState = {
   user: null,
@@ -39,7 +38,6 @@ export const loginUser = createAsyncThunk(
   "account/loginUser",
   async ({ username, password }, { rejectWithValue }) => {
     try {
-      console.log(" Sending request:", { username, password });
       const response = await axios.post(`${API_BASE_URL}/login`, {
         username,
         password,

@@ -5,6 +5,7 @@ import styles from "./ProductItem.module.css";
 import { addItem } from "./cartSlice";
 
 function ProductItem({ product }) {
+  console.log("Product", product);
   const dispatch = useDispatch();
 
   function handleAddToCart(e) {
@@ -32,7 +33,7 @@ function ProductItem({ product }) {
       </Link>
       <div className={styles["product-info"]}>
         <p className={styles.category}>{product.category}</p>
-        <p className={styles.price}>${product.price.toFixed(2)}</p>
+        <p className={styles.price}>${Number(product.price).toFixed(2)}</p>
         <div className={styles.rating}>
           ⭐ {product.rating.rate} ({product.rating.count} reviews)
         </div>

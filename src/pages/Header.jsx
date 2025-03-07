@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logoutUser } from "../components/accountSlice";
+import { emptyCart } from "../components/cartSlice";
 import { debounce } from "../util/helper";
 import styles from "./Header.module.css";
 
@@ -38,6 +39,11 @@ const Header = () => {
     const value = e.target.value;
     setSearchQuery(value);
     debouncedSearch(value);
+  }
+
+  function handleLogout(e) {
+    dispatch(emptyCart());
+    dispatch(logoutUser());
   }
 
   return (
@@ -86,11 +92,7 @@ const Header = () => {
             </>
           )}
           {isAuthenticated ? (
-            <Link
-              to="/"
-              className={styles.navLink}
-              onClick={() => dispatch(logoutUser())}
-            >
+            <Link to="/" className={styles.navLink} onClick={handleLogout}>
               Logout
             </Link>
           ) : (
